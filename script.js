@@ -5,6 +5,16 @@ const resultContainer = document.getElementById('result-container');
 const result = document.getElementById('result');
 const spinButton = document.getElementById('spin-button');
 const light = document.getElementById('light');
+const observer = new MutationObserver((mutationsList) => {
+  for (let mutation of mutationsList) {
+    if (mutation.type === 'childList') {
+      // handle DOM changes
+    }
+  }
+});
+
+observer.observe(document.body, { childList: true });
+
 
 // Initialize the app
 function init() {
