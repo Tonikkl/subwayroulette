@@ -1,3 +1,13 @@
+function init() {
+  const checkboxes = generateCheckboxes(stations);
+  const checkboxesContainer = document.querySelector('.checkboxes');
+  checkboxesContainer.innerHTML = checkboxes;
+
+  const spinButton = document.getElementById('spin-button');
+  spinButton.addEventListener('click', spinWheel);
+}
+
+
 function spin() {
   light.style.display = "block";
   resultContainer.style.display = "none";
