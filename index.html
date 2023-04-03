@@ -23,5 +23,22 @@
     </div>
   </div>
   <script src="script.js"></script>
+  <script>
+  var apiKey = prompt("Please enter your Google Maps API key:");
+  if (apiKey !== null && apiKey !== "") {
+    var script = document.createElement("script");
+    script.src = "https://maps.googleapis.com/maps/api/js?key=" + apiKey;
+    script.onload = function() {
+      // code that depends on the Google Maps API goes here
+    };
+    script.onerror = function() {
+      alert("Failed to load Google Maps API.");
+    };
+    document.head.appendChild(script);
+  } else {
+    alert("Please enter a valid API key.");
+  }
+</script>
+
 </body>
 </html>
