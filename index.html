@@ -1,29 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Station Roulette</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Station Roulette</h1>
-    <div class="controls">
-      <form id="stations-form">
-        <h2>Choose the stations:</h2>
-        <div class="checkboxes">
-        </div>
-        <button type="button" id="spin-button">Spin the Wheel!</button>
-      </form>
-    </div>
-    <div id="result-container">
-      <div id="light"></div>
-      <div id="result"></div>
-    </div>
-  </div>
-  <script src="script.js"></script>
-  <script>
+<html>
+  <head>
+    <title>Random Subway Station Selector</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <h1>Random Subway Station Selector</h1>
+    <h2>Choose a station:</h2>
+    <form>
+      <ul id="station-list">
+      </ul>
+      <button type="button" id="select-button">Select Station</button>
+    </form>
+    <div id="map"></div>
+    <script>
   var apiKey = prompt("Please enter your Google Maps API key:");
   if (apiKey !== null && apiKey !== "") {
     var script = document.createElement("script");
@@ -40,5 +31,45 @@
   }
 </script>
 
-</body>
+    <script>
+      var stations = [];
+
+      // load stations from file
+      $.get("stations.txt", function(data) {
+        stations = data.split("\n");
+        // populate station list
+        for (var i = 0; i < stations.length; i++) {
+          if (stations[i] !== "") {
+            $("#station-list").append("<li><input type='checkbox' name='station' value='" + stations[i] + "'>" + stations[i] + "</li>");
+          }
+        }
+      });
+
+      // select random station
+      $("#select-button").click(function() {
+        var selectedStation = $("input[name=station]:checked").val();
+        if (selectedStation !== undefined) {
+          $("input[name=station][value='" + selectedStation + "']").parent().remove();
+          var map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 15,
+            center: {lat: 40.7128, lng: -74.0060}
+          });
+          var geocoder = new google.maps.Geocoder();
+          geocoder.geocode({"address": selectedStation + ", New York, NY"}, function(results, status) {
+            if (status === "OK") {
+              map.setCenter(results[0].geometry.location);
+              var marker = new google.maps.Marker({
+                map: map,
+                position: results[0].geometry.location
+              });
+            } else {
+              alert("Geocode was not successful for the following reason: " + status);
+            }
+          });
+        } else {
+          alert("Please select a station.");
+        }
+      });
+    </script>
+  </body>
 </html>
