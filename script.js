@@ -1,21 +1,26 @@
-function init() {
-  const checkboxes = generateCheckboxes(stations);
-  const checkboxesContainer = document.querySelector('.checkboxes');
-  checkboxesContainer.innerHTML = checkboxes;
+// Select DOM elements
+const checkboxesContainer = document.querySelector('.checkboxes');
+const stationName = document.getElementById('station-name');
+const resultContainer = document.getElementById('result-container');
+const result = document.getElementById('result');
+const spinButton = document.getElementById('spin-button');
+const light = document.getElementById('light');
 
-  const spinButton = document.getElementById('spin-button');
+// Initialize the app
+function init() {
+  checkboxesContainer.innerHTML = generateCheckboxes(stations);
   spinButton.addEventListener('click', spinWheel);
 }
 
-
-function spin() {
-  light.style.display = "block";
-  resultContainer.style.display = "none";
+// Handle spin button click
+function spinWheel() {
+  light.style.display = 'block';
+  resultContainer.style.display = 'none';
 
   const includedStations = getIncludedStations();
 
   if (includedStations.length === 0) {
-    alert("Please include at least one station.");
+    alert('Please include at least one station.');
     return;
   }
 
@@ -23,48 +28,47 @@ function spin() {
   const spinDuration = 3000; // 3 seconds
   let spinSpeed = 500; // initial speed
   let rotationCount = 0;
-  let rotationInterval = setInterval(() => {
-    stationName.innerHTML = includedStations[rotationCount % stationCount];
-    rotationCount++;
-  }, spinSpeed);
+  let rotationInterval = setInterval(rotate, spinSpeed);
 
-  // gradually slow down the spin
+  // Gradually slow down the spin
+  const speedInterval = setInterval(() => {
+    spinSpeed += 20;
+    if (spinSpeed >= 1000) clearInterval(speedInterval); // Maximum spin speed
+  }, 100);
+
+  // Stop the spin and show the result
   setTimeout(() => {
     clearInterval(rotationInterval);
+
     const index = Math.floor(Math.random() * stationCount);
     const station = includedStations[index];
     includedStations.splice(index, 1);
     const searchQuery = encodeURIComponent(`${station} station`);
     const mapLink = `https://www.google.com/maps/embed/v1/search?key=${apiKey}&q=${searchQuery}`;
     result.innerHTML = `<iframe width="600" height="450" frameborder="0" style="border:0" allowfullscreen src="${mapLink}"></iframe>`;
-    resultContainer.style.display = "block";
-    light.style.display = "none";
+    resultContainer.style.display = 'block';
+    light.style.display = 'none';
 
-    // uncheck the selected station
-    const checkboxes = document.querySelectorAll('input[name="station"]');
-    checkboxes.forEach((checkbox) => {
-      if (checkbox.value === station) {
-        checkbox.checked = false;
-      }
+    // Uncheck the selected station
+    document.querySelectorAll('input[name="station"]').forEach((checkbox) => {
+      if (checkbox.value === station) checkbox.checked = false;
     });
 
-    // flash the result
+    // Flash the result and trigger fireworks
     let flashCount = 0;
-    let flashInterval = setInterval(() => {
-      resultContainer.style.display = flashCount % 2 === 0 ? "none" : "block";
+    const flashInterval = setInterval(() => {
+      resultContainer.style.display = flashCount % 2 === 0 ? 'none' : 'block';
       flashCount++;
       if (flashCount > 10) {
         clearInterval(flashInterval);
-        // call firework function after flash
         fireworks(15);
       }
     }, 50);
   }, spinDuration);
 
-  let speedInterval = setInterval(() => {
-    spinSpeed += 20;
-    if (spinSpeed >= 1000) { // maximum spin speed
-      clearInterval(speedInterval);
-    }
-  }, 100);
+  // Rotate the wheel and update the station name
+  function rotate() {
+    stationName.innerHTML = includedStations[rotationCount % stationCount];
+    rotationCount++;
+  }
 }
